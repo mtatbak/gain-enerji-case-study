@@ -1,3 +1,8 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 power_plants = [
     {
         "powerPlantName" : "MASLAKTEPE RES",
@@ -24,3 +29,15 @@ power_plants = [
         "uevcbId" : 3196990
     }
 ]
+
+
+
+AUTH_URL = os.getenv("AUTH_URL")
+
+BASE_URL = os.getenv("BASE_URL")
+
+USERNAME = os.getenv("USERNAME")
+
+PASSWORD = os.getenv("PASSWORD")
+
+IMAGE_PATH = "gainweb.png"

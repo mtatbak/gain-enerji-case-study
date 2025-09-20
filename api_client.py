@@ -2,9 +2,8 @@ import random
 import requests
 import pandas as pd
 import time
-
-AUTH_URL = "https://giris.epias.com.tr/cas/v1/tickets"
-BASE_URL = "https://seffaflik.epias.com.tr/electricity-service/v1"
+import config
+import streamlit as st  # cache için ekledik
 
 # Geliştirilmiş POST fonksiyonu
 def safe_post(url, headers=None, json=None, data=None, max_retries=5, timeout=60):
@@ -36,22 +35,31 @@ def safe_post(url, headers=None, json=None, data=None, max_retries=5, timeout=60
             
     return None
 
-# get_TGT
-def get_tgt():
-    url = AUTH_URL
+# --- Orijinal get_tgt fonksiyonu ---
+def get_tgt_original():
+    url = config.AUTH_URL
     headers = {
         "Accept": "text/plain",
         "Content-Type": "application/x-www-form-urlencoded"
     }
     body = {
-        "username":"mtatbak54@gmail.com",
-        "password":"Qazwsx!123",
+        "username":config.USERNAME,
+        "password":config.PASSWORD,
     }
     r = safe_post(url, data=body, headers=headers)
     return r.text
 
+# --- cache ile TGT alma ---
+@st.cache_data(ttl=7200)  # 2 saat geçerli
+def get_cached_tgt():
+    return get_tgt_original()
+
+# -----------------------------
+# VERİ ÇEKME FONKSİYONLARI
+# -----------------------------
+
 def fetch_ptf(tgt, start_date, end_date):
-    url = f"{BASE_URL}/markets/dam/data/mcp"
+    url = f"{config.BASE_URL}/markets/dam/data/mcp"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",
@@ -65,7 +73,7 @@ def fetch_ptf(tgt, start_date, end_date):
     return df_ptf[["date", "hour", "price"]]
 
 def fetch_smf(tgt, start_date, end_date):
-    url = f"{BASE_URL}/markets/bpm/data/system-marginal-price"
+    url = f"{config.BASE_URL}/markets/bpm/data/system-marginal-price"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",
@@ -79,7 +87,7 @@ def fetch_smf(tgt, start_date, end_date):
     return data_smf
 
 def fetch_kgup(tgt, organizationId, uevcbId, start_date, end_date, region="TR1"):
-    url = f"{BASE_URL}/generation/data/dpp-first-version"
+    url = f"{config.BASE_URL}/generation/data/dpp-first-version"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",
@@ -99,7 +107,7 @@ def fetch_kgup(tgt, organizationId, uevcbId, start_date, end_date, region="TR1")
     return df[["date", "hour", "toplam"]]
 
 def fetch_uretim(tgt, powerPlantId, start_date, end_date):
-    url = f"{BASE_URL}/generation/data/realtime-generation"
+    url = f"{config.BASE_URL}/generation/data/realtime-generation"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",
@@ -123,7 +131,7 @@ def fetch_monthly_data(tgt, organizationId, uevcbId, powerPlantId, start_date, e
     return df_merged
 
 def fetch_all_data_yearly(organizationId, uevcbId, powerPlantId, region="TR1"):
-    tgt = get_tgt()
+    tgt = get_cached_tgt()  # artık cache kullanılıyor
     df_final = pd.DataFrame()
     import calendar
 

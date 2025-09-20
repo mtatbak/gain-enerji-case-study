@@ -1,14 +1,15 @@
 import streamlit as st
-from config import power_plants
-from api_client import get_tgt, fetch_all_data_yearly
+import config 
+from api_client import get_cached_tgt, fetch_all_data_yearly
+from excel_generator import create_excel_template
 import time  
 
+
 def main():
-    st.set_page_config(page_title="Gain Enerji", page_icon="⚡", layout="wide")
+    st.set_page_config(page_title="Gain Enerji", layout="wide")
    
-    IMAGE_PATH = "gainweb.png"
     try:
-        st.sidebar.image(IMAGE_PATH, width=225)
+        st.sidebar.image(config.IMAGE_PATH, width=225)
     except:
         pass  
    
@@ -19,7 +20,7 @@ def main():
     st.title("Gain Enerji - Santral Karşılaştırma")
    
     col1, col2 = st.columns(2)
-    plant_names = [p["powerPlantName"] for p in power_plants]
+    plant_names = [p["powerPlantName"] for p in config.power_plants]
    
     with col1:
         plant1_name = st.selectbox("1. Santral Seçimi", plant_names)
@@ -33,11 +34,11 @@ def main():
             st.warning("Lütfen farklı santraller seçiniz!")
             return
        
-        plant1 = next(p for p in power_plants if p["powerPlantName"] == plant1_name)
-        plant2 = next(p for p in power_plants if p["powerPlantName"] == plant2_name)
+        plant1 = next(p for p in config.power_plants if p["powerPlantName"] == plant1_name)
+        plant2 = next(p for p in config.power_plants if p["powerPlantName"] == plant2_name)
         
         st.info("Şeffaflık Platformuna bağlanılıyor...")
-        tgt = get_tgt()
+        tgt = get_cached_tgt()  # artık cache kullanılıyor        
         if not tgt:
             st.error("Bağlantı sağlanamadı!")
             return
@@ -77,15 +78,19 @@ def main():
             st.write(f"SMF: {data1['systemMarginalPrice'].notna().sum()} kayıt")
             st.write(f"KGÜP: {data1['toplam'].notna().sum()} kayıt")
             st.write(f"Üretim: {data1['total'].notna().sum()} kayıt")
-            st.text(data1.head())
         with col2:
             st.write(f"**{plant2_name}**")
             st.write(f"PTF: {data2['price'].notna().sum()} kayıt")
             st.write(f"SMF: {data2['systemMarginalPrice'].notna().sum()} kayıt")
             st.write(f"KGÜP: {data2['toplam'].notna().sum()} kayıt")
             st.write(f"Üretim: {data2['total'].notna().sum()} kayıt")
-            st.text(data2.head())
-            
-            
+        # 3. Excel
+        create_excel_template(
+                                filename=f'{plant1_name}_vs_{plant2_name}.xlsx',
+                                santral1=plant1_name,
+                                santral2=plant2_name
+                                                                                        )
+        st.success("Excel Dosyası Oluşturuldu.")
+        
 if __name__ == "__main__":
     main()
