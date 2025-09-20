@@ -4,6 +4,7 @@ import pandas as pd
 import time
 
 AUTH_URL = "https://giris.epias.com.tr/cas/v1/tickets"
+BASE_URL = "https://seffaflik.epias.com.tr/electricity-service/v1"
 
 # Geliştirilmiş POST fonksiyonu
 def safe_post(url, headers=None, json=None, data=None, max_retries=5, timeout=60):
@@ -50,7 +51,7 @@ def get_tgt():
     return r.text
 
 def fetch_ptf(tgt, start_date, end_date):
-    url = "https://seffaflik.epias.com.tr/electricity-service/v1/markets/dam/data/mcp"
+    url = f"{BASE_URL}/markets/dam/data/mcp"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",
@@ -64,7 +65,7 @@ def fetch_ptf(tgt, start_date, end_date):
     return df_ptf[["date", "hour", "price"]]
 
 def fetch_smf(tgt, start_date, end_date):
-    url = "https://seffaflik.epias.com.tr/electricity-service/v1/markets/bpm/data/system-marginal-price"
+    url = f"{BASE_URL}/markets/bpm/data/system-marginal-price"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",
@@ -78,7 +79,7 @@ def fetch_smf(tgt, start_date, end_date):
     return data_smf
 
 def fetch_kgup(tgt, organizationId, uevcbId, start_date, end_date, region="TR1"):
-    url = "https://seffaflik.epias.com.tr/electricity-service/v1/generation/data/dpp-first-version"
+    url = f"{BASE_URL}/generation/data/dpp-first-version"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",
@@ -98,7 +99,7 @@ def fetch_kgup(tgt, organizationId, uevcbId, start_date, end_date, region="TR1")
     return df[["date", "hour", "toplam"]]
 
 def fetch_uretim(tgt, powerPlantId, start_date, end_date):
-    url = "https://seffaflik.epias.com.tr/electricity-service/v1/generation/data/realtime-generation"
+    url = f"{BASE_URL}/generation/data/realtime-generation"
     headers = {
         "TGT": tgt,
         "Accept-Language": "en",

@@ -43,21 +43,19 @@ def main():
             return
         st.success("Bağlantı başarılı!")
 
-        # -----------------------------
         # 1. Santral verileri
-        # -----------------------------
+        
         st.subheader(f"{plant1_name} verileri çekiliyor...")
         progress1 = st.progress(0)
         with st.spinner(f"{plant1_name} verileri çekiliyor, lütfen bekleyiniz..."):
             data1 = fetch_all_data_yearly(plant1["organizationId"], plant1["uevcbId"], plant1["powerPlantId"], region="TR1")
             for i in range(100):
-                time.sleep(0.01)  # küçük gecikme ile progress bar güncelleme
+                time.sleep(0.01)  
                 progress1.progress(i + 1)
         st.success(f"{plant1_name} tamamlandı! ({len(data1)} kayıt)")
 
-        # -----------------------------
         # 2. Santral verileri
-        # -----------------------------
+        
         st.subheader(f"{plant2_name} verileri çekiliyor...")
         progress2 = st.progress(0)
         with st.spinner(f"{plant2_name} verileri çekiliyor, lütfen bekleyiniz..."):
@@ -69,9 +67,8 @@ def main():
 
         st.success("Tüm veriler çekildi!")
 
-        # -----------------------------
         # Veri Durumu
-        # -----------------------------
+        
         st.subheader("Veri Durumu")
         col1, col2 = st.columns(2)
         with col1:
@@ -80,12 +77,13 @@ def main():
             st.write(f"SMF: {data1['systemMarginalPrice'].notna().sum()} kayıt")
             st.write(f"KGÜP: {data1['toplam'].notna().sum()} kayıt")
             st.write(f"Üretim: {data1['total'].notna().sum()} kayıt")
+            st.text(data1.head())
         with col2:
             st.write(f"**{plant2_name}**")
             st.write(f"PTF: {data2['price'].notna().sum()} kayıt")
             st.write(f"SMF: {data2['systemMarginalPrice'].notna().sum()} kayıt")
             st.write(f"KGÜP: {data2['toplam'].notna().sum()} kayıt")
             st.write(f"Üretim: {data2['total'].notna().sum()} kayıt")
-
+            st.text(data2.head())
 if __name__ == "__main__":
     main()
