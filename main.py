@@ -1,7 +1,7 @@
 import streamlit as st
 from config import power_plants
 from api_client import get_tgt, fetch_all_data_yearly
-import time  # progress bar için
+import time  
 
 def main():
     st.set_page_config(page_title="Gain Enerji", page_icon="⚡", layout="wide")
@@ -67,7 +67,7 @@ def main():
 
         st.success("Tüm veriler çekildi!")
 
-        # Veri Durumu
+        # Genel Durumu
         
         st.subheader("Veri Durumu")
         col1, col2 = st.columns(2)
@@ -85,5 +85,7 @@ def main():
             st.write(f"KGÜP: {data2['toplam'].notna().sum()} kayıt")
             st.write(f"Üretim: {data2['total'].notna().sum()} kayıt")
             st.text(data2.head())
+            
+            
 if __name__ == "__main__":
     main()
