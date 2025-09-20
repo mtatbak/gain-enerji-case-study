@@ -25,7 +25,7 @@ power_plants = [
     }
 ]
 
-
+IMAGE_PATH = "media\gainweb.png"
 
 AUTH_URL = "https://giris.epias.com.tr/cas/v1/tickets"
 

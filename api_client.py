@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 import time
 import config
-import streamlit as st  # cache için ekledik
+import streamlit as st 
 
 # Geliştirilmiş POST fonksiyonu
 def safe_post(url, headers=None, json=None, data=None, max_retries=5, timeout=60):
@@ -126,7 +126,7 @@ def fetch_monthly_data(tgt, organizationId, uevcbId, powerPlantId, start_date, e
     return df_merged
 
 def fetch_all_data_yearly(organizationId, uevcbId, powerPlantId, region="TR1"):
-    tgt = get_tgt()  # artık cache kullanılıyor
+    tgt = get_tgt()  
     df_final = pd.DataFrame()
     import calendar
 

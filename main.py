@@ -1,7 +1,7 @@
 import streamlit as st
 import config 
 from api_client import get_tgt, fetch_all_data_yearly
-from excel_generator import create_excel_template
+from excel_generator import create_excel_template,load_data_excel
 import time  
 
 
@@ -37,8 +37,8 @@ def main():
         plant1 = next(p for p in config.power_plants if p["powerPlantName"] == plant1_name)
         plant2 = next(p for p in config.power_plants if p["powerPlantName"] == plant2_name)
         
-        st.info("Şeffaflık Platformuna bağlanılıyor...")
-        tgt = get_tgt()  # artık cache kullanılıyor        
+        st.info("EPİAŞ Şeffaflık Platformuna bağlanılıyor...")
+        tgt = get_tgt()          
         if not tgt:
             st.error("Bağlantı sağlanamadı!")
             return
@@ -84,13 +84,25 @@ def main():
             st.write(f"SMF: {data2['systemMarginalPrice'].notna().sum()} kayıt")
             st.write(f"KGÜP: {data2['toplam'].notna().sum()} kayıt")
             st.write(f"Üretim: {data2['total'].notna().sum()} kayıt")
+        st.text(data1.head())
+        st.text(data2.head())
         # 3. Excel
-        create_excel_template(
-                                filename=f'{plant1_name}_vs_{plant2_name}.xlsx',
-                                santral1=plant1_name,
-                                santral2=plant2_name
-                                                                                        )
+        filename = f"{plant1_name}_vs_{plant2_name}.xlsx"
+        create_excel_template(filename=filename,
+                              santral1=plant1_name,
+                              santral2=plant2_name)
+        
         st.success("Excel Dosyası Oluşturuldu.")
+        mapping = {
+        "price": "PTF",
+        "systemMarginalPrice": "SMF", 
+        "toplam": "Gün Öncesi Üretim Tahmini (KGÜP)",
+        "total": "Gerçekleşen Üretim" }
+        
+        load_data_excel(data1, filename, plant1_name, mapping)
+        
+        load_data_excel(data2, filename, plant2_name, mapping)
+
         
 if __name__ == "__main__":
     main()
