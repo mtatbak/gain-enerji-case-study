@@ -1,8 +1,3 @@
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 power_plants = [
     {
         "powerPlantName" : "MASLAKTEPE RES",
@@ -32,12 +27,9 @@ power_plants = [
 
 
 
-AUTH_URL = os.getenv("AUTH_URL")
+AUTH_URL = "https://giris.epias.com.tr/cas/v1/tickets"
 
-BASE_URL = os.getenv("BASE_URL")
+BASE_URL = "https://seffaflik.epias.com.tr/electricity-service/v1"
 
-USERNAME = os.getenv("USERNAME")
-
-PASSWORD = os.getenv("PASSWORD")
-
-IMAGE_PATH = "gainweb.png"
+EPIAS_USER="mtatbak54@gmail.com"
+EPIAS_PASS="Qazwsx!123"

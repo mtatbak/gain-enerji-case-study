@@ -1,6 +1,6 @@
 import streamlit as st
 import config 
-from api_client import get_cached_tgt, fetch_all_data_yearly
+from api_client import get_tgt, fetch_all_data_yearly
 from excel_generator import create_excel_template
 import time  
 
@@ -38,7 +38,7 @@ def main():
         plant2 = next(p for p in config.power_plants if p["powerPlantName"] == plant2_name)
         
         st.info("Şeffaflık Platformuna bağlanılıyor...")
-        tgt = get_cached_tgt()  # artık cache kullanılıyor        
+        tgt = get_tgt()  # artık cache kullanılıyor        
         if not tgt:
             st.error("Bağlantı sağlanamadı!")
             return

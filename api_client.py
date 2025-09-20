@@ -35,24 +35,19 @@ def safe_post(url, headers=None, json=None, data=None, max_retries=5, timeout=60
             
     return None
 
-# --- Orijinal get_tgt fonksiyonu ---
-def get_tgt_original():
+
+def get_tgt():
     url = config.AUTH_URL
     headers = {
         "Accept": "text/plain",
         "Content-Type": "application/x-www-form-urlencoded"
     }
     body = {
-        "username":config.USERNAME,
-        "password":config.PASSWORD,
+        "username":f"{config.EPIAS_USER}",
+        "password":f"{config.EPIAS_PASS}",
     }
     r = safe_post(url, data=body, headers=headers)
     return r.text
-
-# --- cache ile TGT alma ---
-@st.cache_data(ttl=7200)  # 2 saat geçerli
-def get_cached_tgt():
-    return get_tgt_original()
 
 # -----------------------------
 # VERİ ÇEKME FONKSİYONLARI
@@ -131,7 +126,7 @@ def fetch_monthly_data(tgt, organizationId, uevcbId, powerPlantId, start_date, e
     return df_merged
 
 def fetch_all_data_yearly(organizationId, uevcbId, powerPlantId, region="TR1"):
-    tgt = get_cached_tgt()  # artık cache kullanılıyor
+    tgt = get_tgt()  # artık cache kullanılıyor
     df_final = pd.DataFrame()
     import calendar
 
