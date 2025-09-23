@@ -3,3 +3,5 @@ python-dotenv
 requests
 pandas
 XlsxWriter
+openpyxl
+numpy

@@ -14,7 +14,7 @@ def main():
     except:
         pass  
    
-    st.sidebar.title("Gain Enerji — Intern Analyst Case Study")
+    st.sidebar.title("Intern Analyst Case Study")
     
     st.sidebar.markdown("---")
     st.sidebar.markdown("**Geliştirici:** Mehmet TATBAK")

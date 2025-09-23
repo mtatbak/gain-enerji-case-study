@@ -49,9 +49,7 @@ def get_tgt():
     r = safe_post(url, data=body, headers=headers)
     return r.text
 
-# -----------------------------
 # VERİ ÇEKME FONKSİYONLARI
-# -----------------------------
 
 def fetch_ptf(tgt, start_date, end_date):
     url = f"{config.BASE_URL}/markets/dam/data/mcp"
