@@ -28,6 +28,13 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
         'align': 'center'
     })
     
+    # Formül formatı ekle
+    formula_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'num_format': '#,##0.00'
+    })
+    
     # Başlık sütunlarını tanımla
     headers = [
         'Tarih', 'Ay', 'Saat','PTF', 'SMF','Pozitif Den. Fiyatı', 'Negatif Den. Fiyatı',
@@ -113,7 +120,7 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
     
     print(f"{santral2} - Son veri satırı: {current_row-1}")
     
-    # KARŞILAŞTIRMA SHEET'İ OLUŞTUR
+    # KARŞILAŞTIRMA SHEET'İ OLUŞTUR - FORMÜLLERLE
     ws3 = workbook.add_worksheet('Karşılaştırma')
 
     # Ortak başlık listesi
@@ -150,49 +157,141 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
         'valign': 'vcenter'
     })
 
-    # Santral 1 tablosu başlığı
+    # SANTRAL 1 TABLOSU
     ws3.write('B2', f'{santral1}', red_bold_format)
 
     # Başlık satırı
     for col, header in enumerate(comparison_headers):
         ws3.write(3, col + 1, header, header_format_green)  # B4:J4
 
-    # Ay 1-12 + Toplam
-    for row in range(4, 16):  # Satır 5–16 → Ay 1-12
-        ws3.write(row, 1, row - 3, bordered_center_format)  # B5:B16
+    # Ay 1-12 için formüller
+    for month in range(1, 13):  # Ay 1-12
+        row = 3 + month  # Satır 4-15 (Excel'de B5:B16)
+        ws3.write(row, 1, month, bordered_center_format)  # Ay numarası
+        
+        # Excel satır numarası (Python 0-based, Excel 1-based)
+        excel_row = row + 1
+        
+        # Sheet adını güvenli hale getir (boşluk varsa tek tırnak ekle)
+        safe_santral1 = f"'{santral1}'" if ' ' in santral1 else santral1
+        
+        # Gerçekleşen Üretim (MWh) - I sütunu (index 8)
+        formula = f"=SUMIF({safe_santral1}!B:B,{month},{safe_santral1}!I:I)"
+        ws3.write_formula(row, 2, formula, formula_format)
+        
+        # Dengesizlik Miktarı (MWh) - J sütunu (index 9)
+        formula = f"=SUMIF({safe_santral1}!B:B,{month},{safe_santral1}!J:J)"
+        ws3.write_formula(row, 3, formula, formula_format)
+        
+        # GÖP Geliri (TL) - K sütunu (index 10)
+        formula = f"=SUMIF({safe_santral1}!B:B,{month},{safe_santral1}!K:K)"
+        ws3.write_formula(row, 4, formula, formula_format)
+        
+        # Dengesizlik Tutarı (TL) - L sütunu (index 11)
+        formula = f"=SUMIF({safe_santral1}!B:B,{month},{safe_santral1}!L:L)"
+        ws3.write_formula(row, 5, formula, formula_format)
+        
+        # Toplam Gelir (TL) - M sütunu (index 12)
+        formula = f"=SUMIF({safe_santral1}!B:B,{month},{safe_santral1}!M:M)"
+        ws3.write_formula(row, 6, formula, formula_format)
+        
+        # Birim Gelir (TL/MWh) - Toplam Gelir / Gerçekleşen Üretim
+        formula = f"=IF(C{excel_row}=0,0,G{excel_row}/C{excel_row})"
+        ws3.write_formula(row, 7, formula, formula_format)
+        
+        # Dengesizlik Maliyeti (TL) - N sütunu (index 13)
+        formula = f"=SUMIF({safe_santral1}!B:B,{month},{safe_santral1}!N:N)"
+        ws3.write_formula(row, 8, formula, formula_format)
+        
+        # Birim Deng. Mal. (TL/MWh) - O sütunu (index 14)
+        formula = f"=SUMIF({safe_santral1}!B:B,{month},{safe_santral1}!O:O)"
+        ws3.write_formula(row, 9, formula, formula_format)
 
-    ws3.write(16, 1, 'Toplam', header_format_green)  # B17
+    # SANTRAL 1 TOPLAM SATIRLARI (17. satır - Python index 16)
+    ws3.write(16, 1, 'Toplam', header_format_green)
+    
+    # Toplam satırında formüller
+    for col in range(2, 10):  # C17:J17
+        if col == 7:  # Birim Gelir için ağırlıklı ortalama
+            formula = f"=IF(SUM(C5:C16)=0,0,SUM(G5:G16)/SUM(C5:C16))"
+        elif col == 9:  # Birim Maliyet için ağırlıklı ortalama
+            formula = f"=IF(SUM(C5:C16)=0,0,SUM(I5:I16)/SUM(C5:C16))"
+        else:  # Diğerleri için toplam
+            col_letter = chr(ord('C') + col - 2)  # C, D, E, F, G, H, I, J
+            formula = f"=SUM({col_letter}5:{col_letter}16)"
+        
+        ws3.write_formula(16, col, formula, formula_format)
 
-    # Veri hücreleri (boş)
-    for row in range(4, 17):
-        for col in range(2, 10):  # C:J
-            ws3.write(row, col, '', bordered_center_format)
-
-    # Santral 2 tablosu başlığı
+    # SANTRAL 2 TABLOSU
     ws3.write('B19', f'{santral2}', red_bold_format)
 
     # Başlık satırı
     for col, header in enumerate(comparison_headers):
         ws3.write(20, col + 1, header, header_format_green)  # B21:J21
 
-    # Ay 1-12 + Toplam
-    for row in range(21, 33):  # Satır 22–33
-        ws3.write(row, 1, row - 20, bordered_center_format)  # B22:B33
+    # Ay 1-12 için formüller
+    for month in range(1, 13):  # Ay 1-12
+        row = 20 + month  # Satır 21-32 (Excel'de B22:B33)
+        ws3.write(row, 1, month, bordered_center_format)  # Ay numarası
+        
+        # Excel satır numarası
+        excel_row = row + 1
+        
+        # Sheet adını güvenli hale getir
+        safe_santral2 = f"'{santral2}'" if ' ' in santral2 else santral2
+        
+        # Gerçekleşen Üretim (MWh)
+        formula = f"=SUMIF({safe_santral2}!B:B,{month},{safe_santral2}!I:I)"
+        ws3.write_formula(row, 2, formula, formula_format)
+        
+        # Dengesizlik Miktarı (MWh)
+        formula = f"=SUMIF({safe_santral2}!B:B,{month},{safe_santral2}!J:J)"
+        ws3.write_formula(row, 3, formula, formula_format)
+        
+        # GÖP Geliri (TL)
+        formula = f"=SUMIF({safe_santral2}!B:B,{month},{safe_santral2}!K:K)"
+        ws3.write_formula(row, 4, formula, formula_format)
+        
+        # Dengesizlik Tutarı (TL)
+        formula = f"=SUMIF({safe_santral2}!B:B,{month},{safe_santral2}!L:L)"
+        ws3.write_formula(row, 5, formula, formula_format)
+        
+        # Toplam Gelir (TL)
+        formula = f"=SUMIF({safe_santral2}!B:B,{month},{safe_santral2}!M:M)"
+        ws3.write_formula(row, 6, formula, formula_format)
+        
+        # Birim Gelir (TL/MWh)
+        formula = f"=IF(C{excel_row}=0,0,G{excel_row}/C{excel_row})"
+        ws3.write_formula(row, 7, formula, formula_format)
+        
+        # Dengesizlik Maliyeti (TL)
+        formula = f"=SUMIF({safe_santral2}!B:B,{month},{safe_santral2}!N:N)"
+        ws3.write_formula(row, 8, formula, formula_format)
+        
+        # Birim Deng. Mal. (TL/MWh)
+        formula = f"=SUMIF({safe_santral2}!B:B,{month},{safe_santral2}!O:O)"
+        ws3.write_formula(row, 9, formula, formula_format)
 
-    ws3.write(33, 1, 'Toplam', header_format_green)  # B34
-
-    # Veri hücreleri (boş)
-    for row in range(21, 34):
-        for col in range(2, 10):  # C:J
-            ws3.write(row, col, '', bordered_center_format)
+    # SANTRAL 2 TOPLAM SATIRLARI (34. satır - Python index 33)
+    ws3.write(33, 1, 'Toplam', header_format_green)
+    
+    # Toplam satırında formüller
+    for col in range(2, 10):  # C34:J34
+        if col == 7:  # Birim Gelir için ağırlıklı ortalama
+            formula = f"=IF(SUM(C22:C33)=0,0,SUM(G22:G33)/SUM(C22:C33))"
+        elif col == 9:  # Birim Maliyet için ağırlıklı ortalama
+            formula = f"=IF(SUM(C22:C33)=0,0,SUM(I22:I33)/SUM(C22:C33))"
+        else:  # Diğerleri için toplam
+            col_letter = chr(ord('C') + col - 2)
+            formula = f"=SUM({col_letter}22:{col_letter}33)"
+        
+        ws3.write_formula(33, col, formula, formula_format)
 
     # Sütun genişliği
     ws3.set_column('B:J', 20)
     
-    
-    
     workbook.close()
-    print(f"Excel dosyası başarıyla oluşturuldu: {filename}")
+    print(f"Excel dosyası formüllerle birlikte başarıyla oluşturuldu: {filename}")
 
 def load_data_excel(df, excel_path, sheet_name, mapping):
     """
@@ -218,12 +317,13 @@ def load_data_excel(df, excel_path, sheet_name, mapping):
         print(f"'{df_column}' → '{excel_header}' (Sütun {col_index})")
         
         # DataFrame'deki veriyi Excel'e yaz
-        # 2. satırdan başla (0: başlık, 1: boş satır, 2: ilk veri)
+        # 3. satırdan başla (0: başlık, 1: boş satır, 2: ilk veri)
         start_row = 3
         
         for i, value in enumerate(df[df_column]):
-            excel_row = start_row + i  # 2, 3, 4, 5...
+            excel_row = start_row + i  # 3, 4, 5, 6...
             ws.cell(row=excel_row, column=col_index, value=value)
     
     wb.save(excel_path)
     wb.close()
+
