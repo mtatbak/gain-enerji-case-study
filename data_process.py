@@ -27,7 +27,7 @@ def eda(data):
     data["Birim Dengesizlik Maliyeti (TL/MWh)"] = np.where(
                 data["total"] != 0, 
                 data["Dengesizlik Maliyeti (TL)"] / data["total"], 
-                0
+                None
 )    
     return data
 

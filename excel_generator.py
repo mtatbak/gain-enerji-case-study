@@ -113,10 +113,81 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
     
     print(f"{santral2} - Son veri satırı: {current_row-1}")
     
-    # KARŞILAŞTIRMA SHEET'İ (Boş olarak oluştur)
+    # KARŞILAŞTIRMA SHEET'İ OLUŞTUR
     ws3 = workbook.add_worksheet('Karşılaştırma')
+
+    # Ortak başlık listesi
+    comparison_headers = [
+        'Ay',
+        'Gerçekleşen Üretim (MWh)',
+        'Dengesizlik Miktarı (MWh)',
+        'GÖP Geliri (TL)',
+        'Dengesizlik Tutarı (TL)',
+        'Toplam Gelir (TL)',
+        'Birim Gelir (TL/MWh)',
+        'Dengesizlik Maliyeti (TL)',
+        'Birim Deng. Mal. (TL/MWh)'
+    ]
     
-    
+    # Formatlar
+    red_bold_format = workbook.add_format({
+        'bold': True,
+        'font_color': 'red'
+    })
+
+    header_format_green = workbook.add_format({
+        'bold': True,
+        'bg_color': '#D7E4BC',
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'text_wrap': True
+    })
+
+    bordered_center_format = workbook.add_format({
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter'
+    })
+
+    # Santral 1 tablosu başlığı
+    ws3.write('B2', f'{santral1}', red_bold_format)
+
+    # Başlık satırı
+    for col, header in enumerate(comparison_headers):
+        ws3.write(3, col + 1, header, header_format_green)  # B4:J4
+
+    # Ay 1-12 + Toplam
+    for row in range(4, 16):  # Satır 5–16 → Ay 1-12
+        ws3.write(row, 1, row - 3, bordered_center_format)  # B5:B16
+
+    ws3.write(16, 1, 'Toplam', header_format_green)  # B17
+
+    # Veri hücreleri (boş)
+    for row in range(4, 17):
+        for col in range(2, 10):  # C:J
+            ws3.write(row, col, '', bordered_center_format)
+
+    # Santral 2 tablosu başlığı
+    ws3.write('B19', f'{santral2}', red_bold_format)
+
+    # Başlık satırı
+    for col, header in enumerate(comparison_headers):
+        ws3.write(20, col + 1, header, header_format_green)  # B21:J21
+
+    # Ay 1-12 + Toplam
+    for row in range(21, 33):  # Satır 22–33
+        ws3.write(row, 1, row - 20, bordered_center_format)  # B22:B33
+
+    ws3.write(33, 1, 'Toplam', header_format_green)  # B34
+
+    # Veri hücreleri (boş)
+    for row in range(21, 34):
+        for col in range(2, 10):  # C:J
+            ws3.write(row, col, '', bordered_center_format)
+
+    # Sütun genişliği
+    ws3.set_column('B:J', 20)
     
     
     
