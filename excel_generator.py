@@ -116,6 +116,10 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
     # KARŞILAŞTIRMA SHEET'İ (Boş olarak oluştur)
     ws3 = workbook.add_worksheet('Karşılaştırma')
     
+    
+    
+    
+    
     workbook.close()
     print(f"Excel dosyası başarıyla oluşturuldu: {filename}")
 

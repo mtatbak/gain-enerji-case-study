@@ -2,7 +2,8 @@ import streamlit as st
 import config 
 from api_client import get_tgt, fetch_all_data_yearly
 from excel_generator import create_excel_template,load_data_excel
-import time  
+import time 
+from data_process import eda 
 
 
 def main():
@@ -14,8 +15,10 @@ def main():
         pass  
    
     st.sidebar.title("Gain Enerji — Intern Analyst Case Study")
+    
     st.sidebar.markdown("---")
     st.sidebar.markdown("**Geliştirici:** Mehmet TATBAK")
+
    
     st.title("Gain Enerji - Santral Karşılaştırma")
    
@@ -37,12 +40,12 @@ def main():
         plant1 = next(p for p in config.power_plants if p["powerPlantName"] == plant1_name)
         plant2 = next(p for p in config.power_plants if p["powerPlantName"] == plant2_name)
         
-        st.info("EPİAŞ Şeffaflık Platformuna bağlanılıyor...")
+        st.sidebar.info("EPİAŞ Şeffaflık Platformuna bağlanılıyor...")
         tgt = get_tgt()          
         if not tgt:
             st.error("Bağlantı sağlanamadı!")
             return
-        st.success("Bağlantı başarılı!")
+        st.sidebar.success("Bağlantı başarılı!")
 
         # 1. Santral verileri
         
@@ -54,7 +57,9 @@ def main():
                 time.sleep(0.01)  
                 progress1.progress(i + 1)
         st.success(f"{plant1_name} tamamlandı! ({len(data1)} kayıt)")
-
+        
+        data1 = eda(data1)
+        
         # 2. Santral verileri
         
         st.subheader(f"{plant2_name} verileri çekiliyor...")
@@ -67,27 +72,14 @@ def main():
         st.success(f"{plant2_name} tamamlandı! ({len(data2)} kayıt)")
 
         st.success("Tüm veriler çekildi!")
-
-        # Genel Durumu
         
-        st.subheader("Veri Durumu")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.write(f"**{plant1_name}**")
-            st.write(f"PTF: {data1['price'].notna().sum()} kayıt")
-            st.write(f"SMF: {data1['systemMarginalPrice'].notna().sum()} kayıt")
-            st.write(f"KGÜP: {data1['toplam'].notna().sum()} kayıt")
-            st.write(f"Üretim: {data1['total'].notna().sum()} kayıt")
-        with col2:
-            st.write(f"**{plant2_name}**")
-            st.write(f"PTF: {data2['price'].notna().sum()} kayıt")
-            st.write(f"SMF: {data2['systemMarginalPrice'].notna().sum()} kayıt")
-            st.write(f"KGÜP: {data2['toplam'].notna().sum()} kayıt")
-            st.write(f"Üretim: {data2['total'].notna().sum()} kayıt")
-        st.text(data1.head())
-        st.text(data2.head())
+        data2 = eda(data2)
+
+        
+        
         # 3. Excel
         filename = f"{plant1_name}_vs_{plant2_name}.xlsx"
+        
         create_excel_template(filename=filename,
                               santral1=plant1_name,
                               santral2=plant2_name)
@@ -97,12 +89,22 @@ def main():
         "price": "PTF",
         "systemMarginalPrice": "SMF", 
         "toplam": "Gün Öncesi Üretim Tahmini (KGÜP)",
-        "total": "Gerçekleşen Üretim" }
+        "total": "Gerçekleşen Üretim",
+        "Pozitif Den. Fiyatı": "Pozitif Den. Fiyatı",
+        "Negatif Den. Fiyatı" : "Negatif Den. Fiyatı",
+        "Dengesizlik Miktarı" : "Dengesizlik Miktarı",
+        "GÖP Geliri (TL)" : "GÖP Geliri (TL)",
+        "Dengesizlik Tutarı (TL)" : "Dengesizlik Tutarı  (TL)",
+        "Toplam (Net) Gelir (TL)" : "Toplam (Net) Gelir (TL)",
+        "Dengesizlik Maliyeti (TL)" :"Dengesizlik Maliyeti (TL)",
+        "Birim Dengesizlik Maliyeti (TL/MWh)" : "Birim Dengesizlik Maliyeti (TL/MWh)"
+        }
         
         load_data_excel(data1, filename, plant1_name, mapping)
         
         load_data_excel(data2, filename, plant2_name, mapping)
 
-        
+    
+    
 if __name__ == "__main__":
     main()
