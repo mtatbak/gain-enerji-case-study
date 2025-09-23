@@ -104,6 +104,14 @@ def main():
         
         load_data_excel(data2, filename, plant2_name, mapping)
 
+        with open(filename, "rb") as f:
+            data = f.read()
+
+        st.download_button(
+            label="Excel İndir (.xlsx)",
+            data=data,
+            file_name=filename,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     
     
 if __name__ == "__main__":
