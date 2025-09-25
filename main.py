@@ -41,7 +41,9 @@ def main():
         plant2 = next(p for p in config.power_plants if p["powerPlantName"] == plant2_name)
         
         st.sidebar.info("EPİAŞ Şeffaflık Platformuna bağlanılıyor...")
+        
         tgt = get_tgt()          
+        
         if not tgt:
             st.error("Bağlantı sağlanamadı!")
             return
@@ -51,7 +53,7 @@ def main():
         
         st.subheader(f"{plant1_name} verileri çekiliyor...")
         progress1 = st.progress(0)
-        with st.spinner(f"{plant1_name} verileri çekiliyor, lütfen bekleyiniz..."):
+        with st.spinner("Lütfen bekleyiniz..."):
             data1 = fetch_all_data_yearly(plant1["organizationId"], plant1["uevcbId"], plant1["powerPlantId"], region="TR1")
             for i in range(100):
                 time.sleep(0.01)  
@@ -64,7 +66,7 @@ def main():
         
         st.subheader(f"{plant2_name} verileri çekiliyor...")
         progress2 = st.progress(0)
-        with st.spinner(f"{plant2_name} verileri çekiliyor, lütfen bekleyiniz..."):
+        with st.spinner("Lütfen bekleyiniz..."):
             data2 = fetch_all_data_yearly(plant2["organizationId"], plant2["uevcbId"], plant2["powerPlantId"], region="TR1")
             for i in range(100):
                 time.sleep(0.01)
@@ -85,24 +87,10 @@ def main():
                               santral2=plant2_name)
         
         st.success("Excel Dosyası Oluşturuldu.")
-        mapping = {
-        "price": "PTF",
-        "systemMarginalPrice": "SMF", 
-        "toplam": "Gün Öncesi Üretim Tahmini (KGÜP)",
-        "total": "Gerçekleşen Üretim",
-        "Pozitif Den. Fiyatı": "Pozitif Den. Fiyatı",
-        "Negatif Den. Fiyatı" : "Negatif Den. Fiyatı",
-        "Dengesizlik Miktarı" : "Dengesizlik Miktarı",
-        "GÖP Geliri (TL)" : "GÖP Geliri (TL)",
-        "Dengesizlik Tutarı (TL)" : "Dengesizlik Tutarı  (TL)",
-        "Toplam (Net) Gelir (TL)" : "Toplam (Net) Gelir (TL)",
-        "Dengesizlik Maliyeti (TL)" :"Dengesizlik Maliyeti (TL)",
-        "Birim Dengesizlik Maliyeti (TL/MWh)" : "Birim Dengesizlik Maliyeti (TL/MWh)"
-        }
         
-        load_data_excel(data1, filename, plant1_name, mapping)
+        load_data_excel(data1, filename, plant1_name, config.mapping)
         
-        load_data_excel(data2, filename, plant2_name, mapping)
+        load_data_excel(data2, filename, plant2_name, config.mapping)
 
         with open(filename, "rb") as f:
             data = f.read()
@@ -111,7 +99,8 @@ def main():
             label="Excel İndir (.xlsx)",
             data=data,
             file_name=filename,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            type="primary")
     
     
 if __name__ == "__main__":

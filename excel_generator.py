@@ -72,10 +72,9 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
                 current_row += 1
                 total_hours += 1
     
-    print(f"{santral1} - Toplam oluşturulan saat: {total_hours}")
-    print(f"{santral1} - Son veri satırı: {current_row-1}")
     
     #Santral2
+    
     ws2 = workbook.add_worksheet(santral2)
     
     for col, header in enumerate(headers):
@@ -104,9 +103,9 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
                 
                 current_row += 1
     
-    print(f"{santral2} - Son veri satırı: {current_row-1}")
     
     #Karşılaştırma
+    
     ws3 = workbook.add_worksheet('Karşılaştırma')
 
     comparison_headers = [
@@ -142,6 +141,7 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
     })
 
     # Santral1 
+    
     ws3.write('B2', f'{santral1}', red_bold_format)
 
     for col, header in enumerate(comparison_headers):
@@ -263,12 +263,9 @@ def create_excel_template(filename, santral1='Santral_1', santral2='Santral_2'):
     ws3.set_column('B:J', 20)
     
     workbook.close()
-    print(f"Excel dosyası formüllerle birlikte başarıyla oluşturuldu: {filename}")
 
 def load_data_excel(df, excel_path, sheet_name, mapping):
-    """
-    DataFrame'deki verileri Excel dosyasının belirtilen sheet'ine yazar
-    """
+    
     wb = load_workbook(excel_path)
     ws = wb[sheet_name]
 
@@ -278,12 +275,10 @@ def load_data_excel(df, excel_path, sheet_name, mapping):
     # Mapping'deki her sütun için işlem yap
     for df_column, excel_header in mapping.items():
         if excel_header not in headers:
-            print(f"UYARI: '{excel_header}' başlığı bulunamadı, atlanıyor...")
             continue
         
         col_index = headers.index(excel_header) + 1 
-        print(f"'{df_column}' → '{excel_header}' (Sütun {col_index})")
-        
+     
         start_row = 3
         
         for i, value in enumerate(df[df_column]):

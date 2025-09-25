@@ -31,5 +31,20 @@ AUTH_URL = "https://giris.epias.com.tr/cas/v1/tickets"
 
 BASE_URL = "https://seffaflik.epias.com.tr/electricity-service/v1"
 
-EPIAS_USER="mtatbak54@gmail.com"
-EPIAS_PASS="Qazwsx!123"
+EPIAS_USER="USERNAME"
+EPIAS_PASS="PASSWORD"
+
+mapping = {
+        "price": "PTF",
+        "systemMarginalPrice": "SMF", 
+        "toplam": "Gün Öncesi Üretim Tahmini (KGÜP)",
+        "total": "Gerçekleşen Üretim",
+        "Pozitif Den. Fiyatı": "Pozitif Den. Fiyatı",
+        "Negatif Den. Fiyatı" : "Negatif Den. Fiyatı",
+        "Dengesizlik Miktarı" : "Dengesizlik Miktarı",
+        "GÖP Geliri (TL)" : "GÖP Geliri (TL)",
+        "Dengesizlik Tutarı (TL)" : "Dengesizlik Tutarı  (TL)",
+        "Toplam (Net) Gelir (TL)" : "Toplam (Net) Gelir (TL)",
+        "Dengesizlik Maliyeti (TL)" :"Dengesizlik Maliyeti (TL)",
+        "Birim Dengesizlik Maliyeti (TL/MWh)" : "Birim Dengesizlik Maliyeti (TL/MWh)"
+        }

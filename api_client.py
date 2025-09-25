@@ -6,6 +6,7 @@ import config
 import streamlit as st 
 
 # Geliştirilmiş POST fonksiyonu
+
 def safe_post(url, headers=None, json=None, data=None, max_retries=5, timeout=60):
     for attempt in range(max_retries):
         try:
@@ -49,7 +50,7 @@ def get_tgt():
     r = safe_post(url, data=body, headers=headers)
     return r.text
 
-# VERİ ÇEKME FONKSİYONLARI
+# Veri çekme fonksiyonları
 
 def fetch_ptf(tgt, start_date, end_date):
     url = f"{config.BASE_URL}/markets/dam/data/mcp"
